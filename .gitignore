@@ -6,3 +6,9 @@ coverage
 **/coverage
 .DS_Store
 Thumbs.db
+# Local env files
+server/.env
+client/.env
+
+# Local sqlite dev DB
+server/prisma/dev.db
