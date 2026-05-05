@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "build": "prisma generate",
-    "start": "prisma migrate deploy && node index.js",
+    "start": "node scripts/start.js",
     "dev": "prisma db push && nodemon index.js",
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
