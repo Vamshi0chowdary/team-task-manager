@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const fs = require('fs');
+const path = require('path');
 const authRoutes = require('./routes/auth.routes');
 const projectRoutes = require('./routes/project.routes');
 const taskRoutes = require('./routes/task.routes');
@@ -37,6 +39,22 @@ app.use('/api/auth', authRoutes);
 app.use('/api/projects', authMiddleware, projectRoutes);
 app.use('/api/projects', authMiddleware, taskRoutes);
 app.use('/api/dashboard', authMiddleware, dashboardRoutes);
+
+const clientDistPath = path.resolve(__dirname, '../client/dist');
+const clientIndexPath = path.join(clientDistPath, 'index.html');
+
+if (fs.existsSync(clientIndexPath)) {
+  app.use(express.static(clientDistPath));
+
+  app.use((req, res, next) => {
+    if (req.method === 'GET' && !req.path.startsWith('/api')) {
+      res.sendFile(clientIndexPath);
+      return;
+    }
+
+    next();
+  });
+}
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
