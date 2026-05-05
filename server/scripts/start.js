@@ -1,5 +1,6 @@
 const { spawnSync } = require('node:child_process');
 const path = require('node:path');
+const fs = require('node:fs');
 const dotenv = require('dotenv');
 
 dotenv.config();
@@ -33,13 +34,28 @@ if (!process.env.DATABASE_URL) {
 }
 
 const serverRoot = path.resolve(__dirname, '..');
-const prismaBin = path.join(
-  serverRoot,
-  'node_modules',
-  '.bin',
-  process.platform === 'win32' ? 'prisma.cmd' : 'prisma'
-);
+const projectRoot = path.resolve(serverRoot, '..');
 
+const prismaPaths = [
+  path.join(serverRoot, 'node_modules', '.bin', 'prisma'),
+  path.join(projectRoot, 'node_modules', '.bin', 'prisma'),
+];
+
+if (process.platform === 'win32') {
+  prismaPaths.push(
+    path.join(serverRoot, 'node_modules', '.bin', 'prisma.cmd'),
+    path.join(projectRoot, 'node_modules', '.bin', 'prisma.cmd')
+  );
+}
+
+const prismaBin = prismaPaths.find((p) => fs.existsSync(p));
+
+if (!prismaBin) {
+  console.error('Could not find Prisma binary in any of the expected locations:', prismaPaths);
+  process.exit(1);
+}
+
+console.log('Running Prisma migrations...');
 const migrate = spawnSync(prismaBin, ['migrate', 'deploy'], {
   cwd: serverRoot,
   env: process.env,
@@ -47,7 +63,9 @@ const migrate = spawnSync(prismaBin, ['migrate', 'deploy'], {
 });
 
 if (migrate.status !== 0) {
+  console.error(`Prisma migration failed with status ${migrate.status}`);
   process.exit(migrate.status || 1);
 }
 
+console.log('Migrations completed successfully. Starting server...');
 require('../index');

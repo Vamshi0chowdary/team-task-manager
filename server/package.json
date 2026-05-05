@@ -9,7 +9,7 @@
     "start": "node scripts/start.js",
     "dev": "prisma db push && nodemon index.js",
     "postinstall": "prisma generate",
-    "prisma:generate": "prisma generate",
+    "prisma:generate": "prisma generate || ../node_modules/.bin/prisma generate",
     "prisma:migrate": "prisma migrate dev --name init"
   },
   "dependencies": {
