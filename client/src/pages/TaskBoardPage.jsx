@@ -148,18 +148,25 @@ const TaskBoardPage = () => {
     setIsModalOpen(true);
   };
 
-  const openEditModal = (task) => {
-    setEditingTask(task);
-    setFormData({
-      title: task.title || '',
-      description: task.description || '',
-      dueDate: toInputDate(task.dueDate),
-      priority: task.priority || 'MEDIUM',
-      assignedToId: task.assignedToId ? String(task.assignedToId) : '',
-    });
-    setFieldErrors({});
+  const openEditModal = async (task) => {
     setActionError('');
-    setIsModalOpen(true);
+    try {
+      const response = await api.get(`/api/projects/${projectId}/tasks/${task.id}`);
+      const latestTask = response.data;
+
+      setEditingTask(latestTask);
+      setFormData({
+        title: latestTask.title || '',
+        description: latestTask.description || '',
+        dueDate: toInputDate(latestTask.dueDate),
+        priority: latestTask.priority || 'MEDIUM',
+        assignedToId: latestTask.assignedToId ? String(latestTask.assignedToId) : '',
+      });
+      setFieldErrors({});
+      setIsModalOpen(true);
+    } catch (requestError) {
+      setActionError(requestError.response?.data?.message || 'Failed to load task details.');
+    }
   };
 
   const closeModal = () => {
@@ -236,6 +243,8 @@ const TaskBoardPage = () => {
       } else {
         const response = await api.post(`/api/projects/${projectId}/tasks`, payload);
         addTask(response.data);
+        // After adding a task, show the inline delete option so the user can remove it immediately if they want.
+        setDeleteConfirmId(response.data.id);
       }
 
       closeModal();

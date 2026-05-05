@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
@@ -8,25 +8,41 @@ import ProjectsPage from './pages/ProjectsPage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
 import TaskBoardPage from './pages/TaskBoardPage';
 import useAppStore from './store/useAppStore';
-import { decodeToken } from './utils/auth';
+import api from './api/axios';
 
 const App = () => {
   const setUser = useAppStore((state) => state.setUser);
+  const [initializing, setInitializing] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const decodedUser = decodeToken(token);
+    const hydrateUser = async () => {
+      const token = localStorage.getItem('token');
 
-    if (decodedUser?.id) {
-      setUser({
-        id: decodedUser.id,
-        name: decodedUser.name,
-        email: decodedUser.email,
-      });
-    } else {
-      setUser(null);
-    }
+      if (!token) {
+        setUser(null);
+        setInitializing(false);
+        return;
+      }
+
+      try {
+        const response = await api.get('/api/auth/me');
+        setUser(response.data);
+      } catch (error) {
+        if (error.response?.status === 401) {
+          localStorage.removeItem('token');
+        }
+        setUser(null);
+      } finally {
+        setInitializing(false);
+      }
+    };
+
+    hydrateUser();
   }, [setUser]);
+
+  if (initializing) {
+    return <div className="min-h-screen bg-gray-50" />;
+  }
 
   return (
     <Routes>

@@ -152,6 +152,45 @@ const listTasks = async (req, res) => {
   }
 };
 
+const getTaskById = async (req, res) => {
+  const projectId = Number(req.params.projectId);
+  const taskId = Number(req.params.taskId);
+
+  if (Number.isNaN(projectId) || Number.isNaN(taskId)) {
+    return res.status(400).json({ message: 'Invalid project or task id.' });
+  }
+
+  try {
+    const project = await getProject(projectId);
+
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found.' });
+    }
+
+    const membership = await getProjectMembership(projectId, req.user.id);
+
+    if (!membership) {
+      return res.status(403).json({ message: 'You are not a member of this project' });
+    }
+
+    const task = await prisma.task.findFirst({
+      where: {
+        id: taskId,
+        projectId,
+      },
+      include: buildTaskInclude,
+    });
+
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found.' });
+    }
+
+    return res.status(200).json(task);
+  } catch (error) {
+    return res.status(500).json({ message: 'Failed to fetch task.' });
+  }
+};
+
 const updateTask = async (req, res) => {
   const projectId = Number(req.params.projectId);
   const taskId = Number(req.params.taskId);
@@ -329,6 +368,7 @@ const deleteTask = async (req, res) => {
 module.exports = {
   createTask,
   listTasks,
+  getTaskById,
   updateTask,
   deleteTask,
 };

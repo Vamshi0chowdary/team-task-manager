@@ -37,9 +37,13 @@ const ProjectDetailPage = () => {
       setError('');
 
       try {
-        const response = await api.get(`/api/projects/${projectId}/members`);
-        setProject(response.data.project);
-        setMembers(response.data.members);
+        const [projectResponse, membersResponse] = await Promise.all([
+          api.get(`/api/projects/${projectId}`),
+          api.get(`/api/projects/${projectId}/members`),
+        ]);
+
+        setProject(projectResponse.data);
+        setMembers(membersResponse.data.members);
       } catch (requestError) {
         setError(requestError.response?.data?.message || 'Failed to load project details.');
       } finally {

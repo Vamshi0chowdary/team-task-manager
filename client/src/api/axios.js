@@ -18,9 +18,20 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const status = error.response?.status;
+    const reqUrl = error.config?.url || '';
+
+    // If unauthorized and the request was NOT to the auth endpoints, force logout.
+    if (status === 401 && !reqUrl.includes('/api/auth')) {
       localStorage.removeItem('token');
       window.location.href = '/login';
+      return Promise.reject(error);
+    }
+
+    // For auth endpoints or other errors, don't force a redirect here; let callers handle it.
+    // Improve error object for network errors (no response)
+    if (!error.response) {
+      error.message = error.message || 'Network error. Please check your connection.';
     }
 
     return Promise.reject(error);

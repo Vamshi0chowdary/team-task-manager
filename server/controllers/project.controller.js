@@ -75,6 +75,62 @@ const listProjects = async (req, res) => {
   }
 };
 
+const getProjectById = async (req, res) => {
+  const projectId = Number(req.params.id);
+
+  if (Number.isNaN(projectId)) {
+    return res.status(400).json({ message: 'Invalid project id.' });
+  }
+
+  try {
+    const membership = await prisma.projectMember.findUnique({
+      where: {
+        projectId_userId: {
+          projectId,
+          userId: req.user.id,
+        },
+      },
+      select: {
+        role: true,
+      },
+    });
+
+    if (!membership) {
+      return res.status(403).json({ message: 'You are not a member of this project' });
+    }
+
+    const project = await prisma.project.findUnique({
+      where: {
+        id: projectId,
+      },
+      include: {
+        createdBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found.' });
+    }
+
+    return res.status(200).json({
+      id: project.id,
+      title: project.title,
+      description: project.description,
+      createdAt: project.createdAt,
+      createdBy: project.createdBy,
+      role: membership.role,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'Failed to fetch project.' });
+  }
+};
+
 const addProjectMember = async (req, res) => {
   const projectId = Number(req.params.id);
   const email = req.body.email?.trim().toLowerCase();
@@ -222,10 +278,34 @@ const getProjectMembers = async (req, res) => {
   }
 };
 
+const deleteProject = async (req, res) => {
+  const projectId = Number(req.params.id);
+
+  if (Number.isNaN(projectId)) {
+    return res.status(400).json({ message: 'Invalid project id.' });
+  }
+
+  try {
+    await prisma.project.delete({
+      where: { id: projectId },
+    });
+
+    return res.status(200).json({ message: 'Project deleted' });
+  } catch (error) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({ message: 'Project not found.' });
+    }
+
+    return res.status(500).json({ message: 'Failed to delete project.' });
+  }
+};
+
 module.exports = {
   createProject,
   listProjects,
+  getProjectById,
   addProjectMember,
   removeProjectMember,
   getProjectMembers,
+  deleteProject,
 };

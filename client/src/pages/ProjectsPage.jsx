@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import AppNav from '../components/AppNav';
+import InlineConfirm from '../components/InlineConfirm';
 import useAppStore from '../store/useAppStore';
 
 const roleStyles = {
@@ -20,12 +21,16 @@ const ProjectsPage = () => {
   const currentUser = useAppStore((state) => state.currentUser);
   const projects = useAppStore((state) => state.projects);
   const setProjects = useAppStore((state) => state.setProjects);
+  const removeProject = useAppStore((state) => state.removeProject);
   const addProject = useAppStore((state) => state.addProject);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [deleteLoadingId, setDeleteLoadingId] = useState(null);
+  const [actionError, setActionError] = useState('');
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -135,28 +140,64 @@ const ProjectsPage = () => {
         ) : projects.length > 0 ? (
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {projects.map((project) => (
-              <Link
+              <div
                 key={project.id}
-                to={`/projects/${project.id}`}
                 className="group rounded-3xl border border-slate-200 bg-white/85 p-6 shadow-soft transition hover:-translate-y-1 hover:border-sky-200"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h2 className="text-xl font-bold text-slate-900 group-hover:text-sky-700">{project.title}</h2>
+                    <h2 className="text-xl font-bold text-slate-900 group-hover:text-sky-700">
+                      <Link to={`/projects/${project.id}`}>{project.title}</Link>
+                    </h2>
                     <p className="mt-2 text-sm text-slate-600">
                       {project.description || 'No description provided.'}
                     </p>
                   </div>
-                  <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${roleStyles[project.role]}`}>
-                    {project.role}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${roleStyles[project.role]}`}>
+                      {project.role}
+                    </span>
+                    {project.role === 'ADMIN' ? (
+                      <button
+                        type="button"
+                        onClick={() => { setDeleteConfirmId(project.id); setActionError(''); }}
+                        className="ml-2 rounded-xl border border-rose-200 bg-white px-3 py-1 text-sm font-medium text-rose-700 transition hover:bg-rose-50"
+                      >
+                        Delete
+                      </button>
+                    ) : null}
+                  </div>
                 </div>
 
                 <div className="mt-6 flex items-center justify-between text-sm text-slate-500">
                   <span>Created {formatDate(project.createdAt)}</span>
                   <span>#{project.id}</span>
                 </div>
-              </Link>
+
+                {deleteConfirmId === project.id ? (
+                  <div className="mt-3">
+                    <InlineConfirm
+                      message="Are you sure you want to delete this project?"
+                      loading={deleteLoadingId === project.id}
+                      onConfirm={async () => {
+                        setActionError('');
+                        setDeleteLoadingId(project.id);
+                        try {
+                          await api.delete(`/api/projects/${project.id}`);
+                          // remove from store
+                          removeProject(project.id);
+                          setDeleteConfirmId(null);
+                        } catch (err) {
+                          setActionError(err.response?.data?.message || 'Failed to delete project.');
+                        } finally {
+                          setDeleteLoadingId(null);
+                        }
+                      }}
+                      onCancel={() => setDeleteConfirmId(null)}
+                    />
+                  </div>
+                ) : null}
+              </div>
             ))}
           </div>
         ) : null}

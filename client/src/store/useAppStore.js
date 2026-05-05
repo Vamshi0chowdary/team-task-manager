@@ -12,6 +12,10 @@ const useAppStore = create((set) => ({
     set((state) => ({
       projects: [project, ...state.projects.filter((item) => item.id !== project.id)],
     })),
+  removeProject: (projectId) =>
+    set((state) => ({
+      projects: state.projects.filter((p) => p.id !== projectId),
+    })),
   addTask: (task) =>
     set((state) => ({
       tasks: [task, ...state.tasks.filter((item) => item.id !== task.id)],
@@ -24,7 +28,11 @@ const useAppStore = create((set) => ({
     set((state) => ({
       tasks: state.tasks.filter((task) => task.id !== taskId),
     })),
-  setDashboardData: (data) => set({ dashboardData: data }),
+  setDashboardData: (dataOrUpdater) =>
+    set((state) => ({
+      dashboardData:
+        typeof dataOrUpdater === 'function' ? dataOrUpdater(state.dashboardData) : dataOrUpdater,
+    })),
 }));
 
 export default useAppStore;

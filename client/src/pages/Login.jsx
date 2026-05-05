@@ -86,8 +86,14 @@ const Login = () => {
         navigate('/dashboard');
       }, 3000);
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Unable to sign in.';
-      setMessage(errorMessage);
+      // Distinguish server-side messages from network/errors
+      if (error.response?.data?.message) {
+        setMessage(error.response.data.message);
+      } else if (error.request && !error.response) {
+        setMessage('Network error. Please check your connection and try again.');
+      } else {
+        setMessage(error.message || 'Unable to sign in.');
+      }
     } finally {
       setLoading(false);
     }
