@@ -337,7 +337,13 @@ const TaskBoardPage = () => {
                 value={task.status}
                 onChange={(event) => handleStatusChange(task, event.target.value)}
                 disabled={statusUpdatingId === task.id}
-                className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-100 disabled:cursor-not-allowed"
+                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-100 disabled:cursor-not-allowed appearance-none cursor-pointer hover:border-slate-300"
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23475569' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'right 12px center',
+                  paddingRight: '36px',
+                }}
               >
                 {Object.keys(statusLabels).map((status) => (
                   <option key={status} value={status}>
@@ -527,7 +533,13 @@ const TaskBoardPage = () => {
                       name="priority"
                       value={formData.priority}
                       onChange={handleChange}
-                      className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 font-medium outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-100 appearance-none cursor-pointer hover:border-slate-300"
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23475569' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+                        backgroundRepeat: 'no-repeat',
+                        backgroundPosition: 'right 12px center',
+                        paddingRight: '36px',
+                      }}
                     >
                       <option value="LOW">LOW</option>
                       <option value="MEDIUM">MEDIUM</option>
@@ -544,7 +556,13 @@ const TaskBoardPage = () => {
                       name="assignedToId"
                       value={formData.assignedToId}
                       onChange={handleChange}
-                      className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
+                      className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 font-medium outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-100 appearance-none cursor-pointer hover:border-slate-300"
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23475569' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+                        backgroundRepeat: 'no-repeat',
+                        backgroundPosition: 'right 12px center',
+                        paddingRight: '36px',
+                      }}
                     >
                       <option value="">Unassigned</option>
                       {members.map((member) => (

@@ -861,7 +861,13 @@ const Dashboard = () => {
                     name="projectId"
                     value={quickForm.projectId}
                     onChange={handleQuickChange}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
+                    className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 font-medium placeholder-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition appearance-none cursor-pointer hover:border-slate-300"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23475569' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'right 12px center',
+                      paddingRight: '36px',
+                    }}
                   >
                     <option value="">Select project</option>
                     {adminProjects.map((project) => (
@@ -1048,7 +1054,7 @@ const Dashboard = () => {
                     <select
                       value={editForm.priority}
                       onChange={(event) => setEditForm((state) => ({ ...state, priority: event.target.value }))}
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition appearance-none cursor-pointer hover:border-slate-300"
                     >
                       <option value="LOW">LOW</option>
                       <option value="MEDIUM">MEDIUM</option>
@@ -1061,7 +1067,7 @@ const Dashboard = () => {
                     <select
                       value={editForm.status}
                       onChange={(event) => setEditForm((state) => ({ ...state, status: event.target.value }))}
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition appearance-none cursor-pointer hover:border-slate-300"
                     >
                       <option value="TODO">To Do</option>
                       <option value="IN_PROGRESS">In Progress</option>
@@ -1084,7 +1090,7 @@ const Dashboard = () => {
                     <select
                       value={editForm.assignedToId}
                       onChange={(event) => setEditForm((state) => ({ ...state, assignedToId: event.target.value }))}
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition appearance-none cursor-pointer hover:border-slate-300"
                     >
                       <option value="">Unassigned</option>
                       {editMembers.map((member) => (
