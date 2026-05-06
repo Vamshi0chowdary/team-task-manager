@@ -25,6 +25,17 @@ const statusColumnStyles = {
   DONE: 'bg-emerald-50',
 };
 
+const sortMembersForAssign = (members) =>
+  [...members].sort((left, right) => {
+    if (left.role === right.role) {
+      return left.name.localeCompare(right.name);
+    }
+
+    if (left.role === 'ADMIN') return -1;
+    if (right.role === 'ADMIN') return 1;
+    return 0;
+  });
+
 const emptyForm = {
   title: '',
   description: '',
@@ -124,7 +135,7 @@ const TaskBoardPage = () => {
         ]);
 
         setProject(projectResponse.data.project);
-        setMembers(projectResponse.data.members);
+        setMembers(sortMembersForAssign(projectResponse.data.members || []));
         setTasks(tasksResponse.data);
       } catch (requestError) {
         setError(requestError.response?.data?.message || 'Failed to load tasks.');
@@ -303,6 +314,45 @@ const TaskBoardPage = () => {
     setTasks([]);
     setDashboardData(null);
     navigate('/login');
+  };
+
+  const renderAssigneeValue = (selected) => {
+    const availableLabel = members.map((member) => `${member.name} (${member.role})`).join(', ');
+    const isUnassigned = !selected?.label || selected.label === 'Unassigned';
+
+    return (
+      <span className="flex min-w-0 items-center gap-2 text-slate-900">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm leading-none text-blue-700">
+          👤
+        </span>
+        <span className="min-w-0 text-left">
+          <span className="block truncate font-semibold">{isUnassigned ? 'Unassigned' : selected.label}</span>
+          <span className="block truncate text-xs font-normal text-slate-500">
+            {availableLabel ? `Available: ${availableLabel}` : 'No project members found'}
+          </span>
+        </span>
+      </span>
+    );
+  };
+
+  const renderAssigneeOption = (option, isSelected) => {
+    const isUnassigned = option.value === '';
+    const parts = String(option.label).split('(');
+    const name = parts[0]?.trim() || option.label;
+    const role = parts[1]?.replace(')', '').trim() || '';
+
+    return (
+      <span className="flex min-w-0 items-center gap-3">
+        <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${isUnassigned ? 'bg-slate-100 text-slate-500' : 'bg-blue-100 text-blue-700'}`}>
+          {isUnassigned ? '↔️' : '👤'}
+        </span>
+        <span className="min-w-0 text-left">
+          <span className="block truncate font-medium">{name}</span>
+          <span className="block text-xs text-slate-500">{isUnassigned ? 'Leave task unassigned' : role}</span>
+        </span>
+        {isSelected && !isUnassigned ? <span className="ml-auto text-blue-600">Selected</span> : null}
+      </span>
+    );
   };
 
   const renderCard = (task) => {
@@ -534,7 +584,14 @@ const TaskBoardPage = () => {
                     <label className="mb-2 block text-sm font-medium text-slate-700" htmlFor="task-assignee">
                       Assign To
                     </label>
-                    <Select id="task-assignee" name="assignedToId" value={formData.assignedToId} onChange={handleChange}>
+                    <Select
+                      id="task-assignee"
+                      name="assignedToId"
+                      value={formData.assignedToId}
+                      onChange={handleChange}
+                      renderValue={renderAssigneeValue}
+                      renderOption={renderAssigneeOption}
+                    >
                       <option value="">Unassigned</option>
                       {members.map((member) => (
                         <option key={member.id} value={member.id}>
