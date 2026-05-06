@@ -365,6 +365,8 @@ const Dashboard = () => {
 
       setToast('Task created successfully');
       closeQuickAdd();
+      // Force a fresh fetch after a small delay to ensure DB is updated
+      await new Promise(resolve => setTimeout(resolve, 500));
       await loadDashboard();
     } catch (requestError) {
       setQuickError(requestError.response?.data?.message || 'Failed to create task.');
@@ -433,6 +435,8 @@ const Dashboard = () => {
       });
 
       closeEditTask();
+      // Force a fresh fetch after a small delay to ensure DB is updated
+      await new Promise(resolve => setTimeout(resolve, 500));
       await loadDashboard();
     } catch (requestError) {
       setEditError(requestError.response?.data?.message || 'Failed to update task.');
@@ -450,6 +454,8 @@ const Dashboard = () => {
       await api.patch(`/api/projects/${task.projectId}/tasks/${task.id}`, {
         status: 'DONE',
       });
+      // Force a fresh fetch after a small delay to ensure DB is updated
+      await new Promise(resolve => setTimeout(resolve, 500));
       await loadDashboard();
     } catch (requestError) {
       setError(requestError.response?.data?.message || 'Failed to update task status.');
