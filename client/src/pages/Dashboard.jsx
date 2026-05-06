@@ -749,23 +749,34 @@ const Dashboard = () => {
         )}
 
         {quickOpen ? (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 px-4">
-            <div className="w-full max-w-xl rounded-xl bg-white p-5 shadow-2xl">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-bold text-slate-900">Quick Add Task</h3>
-                <button type="button" onClick={closeQuickAdd} className="text-sm font-semibold text-slate-500 hover:text-slate-700">
-                  Close
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4 backdrop-blur-sm">
+            <div className="w-full max-w-lg rounded-2xl bg-white p-8 shadow-2xl">
+              <div className="mb-6 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl">📝</span>
+                  <div>
+                    <h2 className="text-2xl font-bold text-slate-900">Create Task</h2>
+                    <p className="text-xs text-slate-500">Add a new task to keep your team organized</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={closeQuickAdd}
+                  className="rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 p-2 transition"
+                >
+                  ✕
                 </button>
               </div>
 
-              <form className="mt-4 space-y-3" onSubmit={handleQuickSubmit}>
+              <form className="space-y-5" onSubmit={handleQuickSubmit}>
+                {/* Project */}
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-slate-700">Project*</label>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">Project *</label>
                   <select
                     name="projectId"
                     value={quickForm.projectId}
                     onChange={handleQuickChange}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                    className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
                   >
                     <option value="">Select project</option>
                     {adminProjects.map((project) => (
@@ -776,86 +787,97 @@ const Dashboard = () => {
                   </select>
                 </div>
 
+                {/* Title */}
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-slate-700">Title*</label>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">Task Title *</label>
                   <input
                     name="title"
                     value={quickForm.title}
                     onChange={handleQuickChange}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                    placeholder="Enter task title..."
+                    className="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
                   />
                 </div>
 
+                {/* Description */}
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-slate-700">Description</label>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">Description</label>
                   <textarea
                     name="description"
                     value={quickForm.description}
                     onChange={handleQuickChange}
-                    className="min-h-24 w-full rounded-lg border border-slate-300 px-3 py-2"
+                    placeholder="Add task details (optional)..."
+                    className="min-h-16 w-full rounded-lg border border-slate-200 px-4 py-2.5 text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition resize-none"
                   />
                 </div>
 
-                <div className="grid gap-3 md:grid-cols-3">
+                {/* Priority, Due Date, Assign */}
+                <div className="grid gap-4 grid-cols-3">
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-slate-700">Priority</label>
+                    <label className="mb-2 block text-sm font-semibold text-slate-700">Priority</label>
                     <select
                       name="priority"
                       value={quickForm.priority}
                       onChange={handleQuickChange}
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-slate-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
                     >
-                      <option value="LOW">LOW</option>
-                      <option value="MEDIUM">MEDIUM</option>
-                      <option value="HIGH">HIGH</option>
+                      <option value="LOW">Low</option>
+                      <option value="MEDIUM">Medium</option>
+                      <option value="HIGH">High</option>
                     </select>
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-slate-700">Due Date</label>
+                    <label className="mb-2 block text-sm font-semibold text-slate-700">Due Date</label>
                     <input
                       type="date"
                       name="dueDate"
                       value={quickForm.dueDate}
                       onChange={handleQuickChange}
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                      className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-slate-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
                     />
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-slate-700">Assign To</label>
+                    <label className="mb-2 block text-sm font-semibold text-slate-700">Assign To</label>
                     <select
                       name="assignedToId"
                       value={quickForm.assignedToId}
                       onChange={handleQuickChange}
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-slate-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
                     >
                       <option value="">Unassigned</option>
                       {quickMembers.map((member) => (
                         <option key={member.id} value={member.id}>
-                          {member.name} ({member.role})
+                          {member.name}
                         </option>
                       ))}
                     </select>
                   </div>
                 </div>
 
-                {quickError ? <p className="text-sm text-rose-600">{quickError}</p> : null}
+                {/* Error Message */}
+                {quickError ? (
+                  <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    {quickError}
+                  </div>
+                ) : null}
 
-                <div className="flex justify-end gap-2">
+                {/* Action Buttons */}
+                <div className="flex gap-3 pt-2">
                   <button
                     type="button"
                     onClick={closeQuickAdd}
-                    className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700"
+                    className="flex-1 rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={quickSaving}
-                    className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white disabled:opacity-70"
+                    className="flex-1 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition"
                   >
-                    {quickSaving ? 'Creating...' : 'Create Task'}
+                    {quickSaving ? '✓ Creating...' : '+ Create Task'}
                   </button>
                 </div>
               </form>
