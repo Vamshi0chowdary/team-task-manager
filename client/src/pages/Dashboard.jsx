@@ -36,10 +36,13 @@ const sortMembersForAssign = (members) =>
     return 0;
   });
 
-  const createAssigneeValueRenderer = (members) => (selected) => {
+const createAssigneeValueRenderer = (members) => (selected) => {
     const availableMembers = sortMembersForAssign(members || []);
-    const availableLabel = availableMembers.map((member) => `${member.name} (${member.role})`).join(', ');
+    const admins = availableMembers.filter((member) => member.role === 'ADMIN').length;
     const isUnassigned = !selected?.label || selected.label === 'Unassigned';
+    const selectedName = selected?.name || selected?.label || 'Unassigned';
+    const selectedRole = selected?.role || '';
+    const selectedEmail = selected?.email || '';
 
     return (
       <span className="flex min-w-0 items-center gap-2 text-slate-900">
@@ -47,20 +50,28 @@ const sortMembersForAssign = (members) =>
           👤
         </span>
         <span className="min-w-0 text-left">
-          <span className="block truncate font-semibold">{isUnassigned ? 'Unassigned' : selected.label}</span>
-          <span className="block truncate text-xs font-normal text-slate-500">
-            {availableLabel ? `Available: ${availableLabel}` : 'No project members found'}
-          </span>
+          <span className="block truncate font-semibold">{isUnassigned ? 'Unassigned' : selectedName}</span>
+          {isUnassigned ? (
+            <span className="block text-xs font-normal text-slate-500">
+              {availableMembers.length > 0
+                ? `${availableMembers.length} members available (${admins} admin)`
+                : 'No project members found'}
+            </span>
+          ) : (
+            <span className="block text-xs font-normal text-slate-500">
+              {selectedRole || 'MEMBER'} {selectedEmail ? `• ${selectedEmail}` : ''}
+            </span>
+          )}
         </span>
       </span>
     );
   };
 
-  const renderAssigneeOption = (option, isSelected) => {
+const renderAssigneeOption = (option, isSelected) => {
     const isUnassigned = option.value === '';
-    const parts = String(option.label).split('(');
-    const name = parts[0]?.trim() || option.label;
-    const role = parts[1]?.replace(')', '').trim() || '';
+    const name = option.name || option.label;
+    const role = option.role || '';
+    const email = option.email || '';
 
     return (
       <span className="flex min-w-0 items-center gap-3">
@@ -69,7 +80,7 @@ const sortMembersForAssign = (members) =>
         </span>
         <span className="min-w-0 text-left">
           <span className="block truncate font-medium">{name}</span>
-          <span className="block text-xs text-slate-500">{isUnassigned ? 'Leave task unassigned' : role}</span>
+          <span className="block text-xs text-slate-500">{isUnassigned ? 'Leave task unassigned' : `${role || 'MEMBER'}${email ? ` • ${email}` : ''}`}</span>
         </span>
         {isSelected && !isUnassigned ? <span className="ml-auto text-blue-600">Selected</span> : null}
       </span>
@@ -968,9 +979,9 @@ const Dashboard = () => {
                       🎯 Priority
                     </label>
                     <Select name="priority" value={quickForm.priority} onChange={handleQuickChange}>
-                      <option value="LOW">🟢 Low</option>
-                      <option value="MEDIUM">🟡 Medium</option>
-                      <option value="HIGH">🔴 High</option>
+                      <option value="LOW">Low</option>
+                      <option value="MEDIUM">Medium</option>
+                      <option value="HIGH">High</option>
                     </Select>
                   </div>
 
@@ -1000,8 +1011,8 @@ const Dashboard = () => {
                     >
                       <option value="">Unassigned</option>
                       {quickMembers.map((member) => (
-                        <option key={member.id} value={member.id}>
-                          {member.name} ({member.role})
+                        <option key={member.id} value={member.id} data-name={member.name} data-role={member.role} data-email={member.email}>
+                          {member.name}
                         </option>
                       ))}
                     </Select>
@@ -1014,9 +1025,9 @@ const Dashboard = () => {
                     ✓ Status
                   </label>
                   <Select name="status" value={quickForm.status} onChange={handleQuickChange}>
-                    <option value="TODO">📋 To Do</option>
-                    <option value="IN_PROGRESS">🔄 In Progress</option>
-                    <option value="DONE">✅ Done</option>
+                    <option value="TODO">To Do</option>
+                    <option value="IN_PROGRESS">In Progress</option>
+                    <option value="DONE">Done</option>
                   </Select>
                 </div>
 
@@ -1125,8 +1136,8 @@ const Dashboard = () => {
                     >
                       <option value="">Unassigned</option>
                       {editMembers.map((member) => (
-                        <option key={member.id} value={member.id}>
-                          {member.name} ({member.role})
+                        <option key={member.id} value={member.id} data-name={member.name} data-role={member.role} data-email={member.email}>
+                          {member.name}
                         </option>
                       ))}
                     </Select>
