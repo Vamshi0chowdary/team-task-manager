@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import Toast from '../components/Toast';
+import Select from '../components/Select';
 import useAppStore from '../store/useAppStore';
 
 const PRIORITY_BADGES = {
@@ -857,25 +858,14 @@ const Dashboard = () => {
                 {/* Project */}
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-slate-700">Project *</label>
-                  <select
-                    name="projectId"
-                    value={quickForm.projectId}
-                    onChange={handleQuickChange}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 font-medium placeholder-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition appearance-none cursor-pointer hover:border-slate-300"
-                    style={{
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23475569' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
-                      backgroundRepeat: 'no-repeat',
-                      backgroundPosition: 'right 12px center',
-                      paddingRight: '36px',
-                    }}
-                  >
+                  <Select name="projectId" value={quickForm.projectId} onChange={handleQuickChange}>
                     <option value="">Select project</option>
                     {adminProjects.map((project) => (
                       <option key={project.id} value={project.id}>
                         {project.title}
                       </option>
                     ))}
-                  </select>
+                  </Select>
                 </div>
 
                 {/* Title */}
@@ -908,22 +898,11 @@ const Dashboard = () => {
                     <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
                       🎯 Priority
                     </label>
-                    <select
-                      name="priority"
-                      value={quickForm.priority}
-                      onChange={handleQuickChange}
-                      className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition appearance-none cursor-pointer hover:border-slate-300"
-                      style={{
-                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23475569' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
-                        backgroundRepeat: 'no-repeat',
-                        backgroundPosition: 'right 12px center',
-                        paddingRight: '36px',
-                      }}
-                    >
+                    <Select name="priority" value={quickForm.priority} onChange={handleQuickChange}>
                       <option value="LOW">🟢 Low</option>
                       <option value="MEDIUM">🟡 Medium</option>
                       <option value="HIGH">🔴 High</option>
-                    </select>
+                    </Select>
                   </div>
 
                   <div>
@@ -943,25 +922,14 @@ const Dashboard = () => {
                     <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
                       👤 Assign To
                     </label>
-                    <select
-                      name="assignedToId"
-                      value={quickForm.assignedToId}
-                      onChange={handleQuickChange}
-                      className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition appearance-none cursor-pointer hover:border-slate-300"
-                      style={{
-                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23475569' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
-                        backgroundRepeat: 'no-repeat',
-                        backgroundPosition: 'right 12px center',
-                        paddingRight: '36px',
-                      }}
-                    >
+                    <Select name="assignedToId" value={quickForm.assignedToId} onChange={handleQuickChange}>
                       <option value="">Unassigned</option>
                       {quickMembers.map((member) => (
                         <option key={member.id} value={member.id}>
                           {member.name} ({member.role})
                         </option>
                       ))}
-                    </select>
+                    </Select>
                   </div>
                 </div>
 
@@ -970,22 +938,11 @@ const Dashboard = () => {
                   <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
                     ✓ Status
                   </label>
-                  <select
-                    name="status"
-                    value={quickForm.status}
-                    onChange={handleQuickChange}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition appearance-none cursor-pointer hover:border-slate-300"
-                    style={{
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23475569' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
-                      backgroundRepeat: 'no-repeat',
-                      backgroundPosition: 'right 12px center',
-                      paddingRight: '36px',
-                    }}
-                  >
+                  <Select name="status" value={quickForm.status} onChange={handleQuickChange}>
                     <option value="TODO">📋 To Do</option>
                     <option value="IN_PROGRESS">🔄 In Progress</option>
                     <option value="DONE">✅ Done</option>
-                  </select>
+                  </Select>
                 </div>
 
                 {/* Error Message */}
@@ -1051,28 +1008,26 @@ const Dashboard = () => {
                 <div className="grid gap-3 md:grid-cols-4">
                   <div>
                     <label className="mb-1 block text-sm font-medium text-slate-700">Priority</label>
-                    <select
+                    <Select
                       value={editForm.priority}
                       onChange={(event) => setEditForm((state) => ({ ...state, priority: event.target.value }))}
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition appearance-none cursor-pointer hover:border-slate-300"
                     >
                       <option value="LOW">LOW</option>
                       <option value="MEDIUM">MEDIUM</option>
                       <option value="HIGH">HIGH</option>
-                    </select>
+                    </Select>
                   </div>
 
                   <div>
                     <label className="mb-1 block text-sm font-medium text-slate-700">Status</label>
-                    <select
+                    <Select
                       value={editForm.status}
                       onChange={(event) => setEditForm((state) => ({ ...state, status: event.target.value }))}
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition appearance-none cursor-pointer hover:border-slate-300"
                     >
                       <option value="TODO">To Do</option>
                       <option value="IN_PROGRESS">In Progress</option>
                       <option value="DONE">Done</option>
-                    </select>
+                    </Select>
                   </div>
 
                   <div>
@@ -1081,16 +1036,15 @@ const Dashboard = () => {
                       type="date"
                       value={editForm.dueDate}
                       onChange={(event) => setEditForm((state) => ({ ...state, dueDate: event.target.value }))}
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition appearance-none cursor-pointer hover:border-slate-300"
                     />
                   </div>
 
                   <div>
                     <label className="mb-1 block text-sm font-medium text-slate-700">Assign To</label>
-                    <select
+                    <Select
                       value={editForm.assignedToId}
                       onChange={(event) => setEditForm((state) => ({ ...state, assignedToId: event.target.value }))}
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition appearance-none cursor-pointer hover:border-slate-300"
                     >
                       <option value="">Unassigned</option>
                       {editMembers.map((member) => (
@@ -1098,7 +1052,7 @@ const Dashboard = () => {
                           {member.name} ({member.role})
                         </option>
                       ))}
-                    </select>
+                    </Select>
                   </div>
                 </div>
 
