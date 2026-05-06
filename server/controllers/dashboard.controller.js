@@ -271,7 +271,6 @@ const getDashboard = async (req, res) => {
           userId: { not: req.user.id },
         },
         select: {
-          createdAt: true,
           user: {
             select: {
               id: true,
@@ -285,9 +284,7 @@ const getDashboard = async (req, res) => {
           },
           projectId: true,
         },
-        orderBy: {
-          createdAt: 'desc',
-        },
+        // Note: ordering by createdAt removed because the field was removed from the schema
         take: 8,
       }),
       prisma.project.findMany({
@@ -364,6 +361,7 @@ const getDashboard = async (req, res) => {
       ...item,
       addedByCurrentUser: true,
       addedByName: 'You',
+      createdAt: new Date().toISOString(),
     }));
 
     const recentActivity = buildRecentActivity({
