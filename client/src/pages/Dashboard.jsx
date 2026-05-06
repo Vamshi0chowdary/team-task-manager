@@ -454,21 +454,45 @@ const Dashboard = () => {
       });
 
       closeEditTask();
-      // push a client-side recent activity entry immediately
+      // push detailed client-side recent activity entries for changed fields
       if (editTask) {
-        const wasCompleted = editTask.status === 'DONE';
-        const isCompletedNow = editForm.status === 'DONE';
-        if (!wasCompleted && isCompletedNow) {
+        const changes = [];
+        if ((editTask.title || '') !== (editForm.title || '')) {
+          changes.push(`changed title to "${editForm.title}"`);
+        }
+        if ((editTask.description || '') !== (editForm.description || '')) {
+          changes.push('updated description');
+        }
+        if ((editTask.priority || '') !== (editForm.priority || '')) {
+          changes.push(`changed priority to ${editForm.priority}`);
+        }
+        if ((editTask.status || '') !== (editForm.status || '')) {
+          changes.push(`set status to ${statusText[editForm.status] || editForm.status}`);
+        }
+        if ((editTask.dueDate || '') !== (editForm.dueDate || '')) {
+          changes.push(`changed due date to ${editForm.dueDate ? formatDate(editForm.dueDate) : 'No due date'}`);
+        }
+        if (String(editTask.assignedToId || '') !== String(editForm.assignedToId || '')) {
+          const assigneeName = editMembers.find((m) => String(m.id) === String(editForm.assignedToId))?.name || 'Unassigned';
+          changes.push(`changed assignee to ${assigneeName}`);
+        }
+
+        if (changes.length > 0) {
+          changes.forEach((change) => {
+            pushRecentActivity({
+              type: 'TASK_UPDATED',
+              message: `${currentUser?.name ? 'You' : 'Someone'} ${change} in ${editTask.projectName || ''}`,
+              projectName: editTask.projectName || '',
+              createdAt: new Date().toISOString(),
+            });
+          });
+        }
+
+        // if status changed to DONE also add completed activity
+        if (editTask.status !== 'DONE' && editForm.status === 'DONE') {
           pushRecentActivity({
             type: 'TASK_COMPLETED',
             message: `${currentUser?.name ? 'You' : 'Someone'} marked ${editForm.title} as Done`,
-            projectName: editTask.projectName || '',
-            createdAt: new Date().toISOString(),
-          });
-        } else {
-          pushRecentActivity({
-            type: 'TASK_UPDATED',
-            message: `${currentUser?.name ? 'You' : 'Someone'} updated ${editForm.title}`,
             projectName: editTask.projectName || '',
             createdAt: new Date().toISOString(),
           });
@@ -787,7 +811,7 @@ const Dashboard = () => {
                         <select
                           value={task.status}
                           onChange={(e) => updateTaskStatus(task, e.target.value)}
-                          className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-900"
+                          className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
                         >
                           <option value="TODO">To Do</option>
                           <option value="IN_PROGRESS">In Progress</option>
@@ -928,7 +952,7 @@ const Dashboard = () => {
                       <option value="">Unassigned</option>
                       {quickMembers.map((member) => (
                         <option key={member.id} value={member.id}>
-                          {member.name}
+                          {member.name} ({member.role})
                         </option>
                       ))}
                     </select>
