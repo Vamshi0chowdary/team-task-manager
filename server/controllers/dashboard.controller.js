@@ -391,6 +391,7 @@ const getDashboard = async (req, res) => {
       recentActivity,
     });
   } catch (error) {
+    console.error('Failed to load dashboard:', error);
     return res.status(500).json({ message: 'Failed to load dashboard.' });
   }
 };
@@ -463,6 +464,7 @@ const getDashboardActivity = async (req, res) => {
       })
     );
   } catch (error) {
+    console.error('Failed to load dashboard activity:', error);
     return res.status(500).json({ message: 'Failed to load dashboard activity.' });
   }
 };
