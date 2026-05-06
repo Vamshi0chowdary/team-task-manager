@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Children, useEffect, useMemo, useRef, useState } from 'react';
 
 const normalizeOptionLabel = (label) => String(label || '').replace(/^[^\p{L}\p{N}]+/u, '').trim();
 
@@ -22,7 +22,7 @@ const optionIcon = (label) => {
   if (label.includes('Medium') || label === 'MEDIUM') return '🟡';
   if (label.includes('Low') || label === 'LOW') return '🟢';
   if (label.includes('Unassigned')) return '↔️';
-  return '•';
+  return '';
 };
 
 export default function Select({
@@ -43,7 +43,7 @@ export default function Select({
   const options = useMemo(
     () =>
       children
-        ? Array.from(Array.isArray(children) ? children : [children])
+        ? Children.toArray(children)
             .filter((child) => child && child.props && child.props.value !== undefined)
             .map((child) => ({
               value: child.props.value,
@@ -96,7 +96,7 @@ export default function Select({
           renderValue(selected)
         ) : (
           <span className="min-w-0 flex items-center gap-2 truncate">
-            <span className="text-base leading-none">{optionIcon(selected.label || '')}</span>
+            {optionIcon(selected.label || '') ? <span className="text-base leading-none">{optionIcon(selected.label || '')}</span> : null}
             <span className="truncate">{selected.label || 'Select an option'}</span>
           </span>
         )}
@@ -124,7 +124,7 @@ export default function Select({
                     renderOption(option, isSelected)
                   ) : (
                     <span className="flex min-w-0 items-center gap-2 truncate">
-                      <span className="text-base leading-none">{optionIcon(option.label)}</span>
+                      {optionIcon(option.label) ? <span className="text-base leading-none">{optionIcon(option.label)}</span> : null}
                       <span className="truncate font-medium">{option.label}</span>
                     </span>
                   )}
