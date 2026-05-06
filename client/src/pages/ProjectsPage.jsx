@@ -139,7 +139,7 @@ const ProjectsPage = () => {
           </div>
         ) : projects.length > 0 ? (
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {projects.map((project) => (
+            {projects.map((project, index) => (
               <div
                 key={project.id}
                 className="group rounded-3xl border border-slate-200 bg-white/85 p-6 shadow-soft transition hover:-translate-y-1 hover:border-sky-200"
@@ -171,7 +171,7 @@ const ProjectsPage = () => {
 
                 <div className="mt-6 flex items-center justify-between text-sm text-slate-500">
                   <span>Created {formatDate(project.createdAt)}</span>
-                  <span>#{project.id}</span>
+                  <span>#{index + 1}</span>
                 </div>
 
                 {deleteConfirmId === project.id ? (
