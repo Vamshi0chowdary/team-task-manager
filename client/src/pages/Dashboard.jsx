@@ -814,37 +814,55 @@ const Dashboard = () => {
                 {/* Priority, Due Date, Assign */}
                 <div className="grid gap-4 grid-cols-3">
                   <div>
-                    <label className="mb-2 block text-sm font-semibold text-slate-700">Priority</label>
+                    <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+                      🎯 Priority
+                    </label>
                     <select
                       name="priority"
                       value={quickForm.priority}
                       onChange={handleQuickChange}
-                      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-slate-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
+                      className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition appearance-none cursor-pointer hover:border-slate-300"
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23475569' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+                        backgroundRepeat: 'no-repeat',
+                        backgroundPosition: 'right 12px center',
+                        paddingRight: '36px',
+                      }}
                     >
-                      <option value="LOW">Low</option>
-                      <option value="MEDIUM">Medium</option>
-                      <option value="HIGH">High</option>
+                      <option value="LOW">🟢 Low</option>
+                      <option value="MEDIUM">🟡 Medium</option>
+                      <option value="HIGH">🔴 High</option>
                     </select>
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm font-semibold text-slate-700">Due Date</label>
+                    <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+                      📅 Due Date
+                    </label>
                     <input
                       type="date"
                       name="dueDate"
                       value={quickForm.dueDate}
                       onChange={handleQuickChange}
-                      className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-slate-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
+                      className="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm text-slate-900 font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition hover:border-slate-300"
                     />
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm font-semibold text-slate-700">Assign To</label>
+                    <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+                      👤 Assign To
+                    </label>
                     <select
                       name="assignedToId"
                       value={quickForm.assignedToId}
                       onChange={handleQuickChange}
-                      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-slate-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
+                      className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition appearance-none cursor-pointer hover:border-slate-300"
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23475569' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+                        backgroundRepeat: 'no-repeat',
+                        backgroundPosition: 'right 12px center',
+                        paddingRight: '36px',
+                      }}
                     >
                       <option value="">Unassigned</option>
                       {quickMembers.map((member) => (
