@@ -40,6 +40,7 @@ const createProject = async (req, res) => {
       role: 'ADMIN',
     });
   } catch (error) {
+    console.error('Failed to create project:', error);
     return res.status(500).json({ message: 'Failed to create project.' });
   }
 };
@@ -53,12 +54,9 @@ const listProjects = async (req, res) => {
       include: {
         project: true,
       },
-      orderBy: {
-        project: {
-          createdAt: 'desc',
-        },
-      },
     });
+
+    memberships.sort((left, right) => right.project.createdAt - left.project.createdAt);
 
     return res.status(200).json(
       memberships.map((membership) => ({
