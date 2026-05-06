@@ -446,13 +446,12 @@ const Dashboard = () => {
   };
 
   const markMyTaskDone = async (task) => {
-    if (task.status === 'DONE') {
-      return;
-    }
+    // Toggle: if DONE, set to TODO; if not DONE, set to DONE
+    const newStatus = task.status === 'DONE' ? 'TODO' : 'DONE';
 
     try {
       await api.patch(`/api/projects/${task.projectId}/tasks/${task.id}`, {
-        status: 'DONE',
+        status: newStatus,
       });
       // Force a fresh fetch after a small delay to ensure DB is updated
       await new Promise(resolve => setTimeout(resolve, 500));
