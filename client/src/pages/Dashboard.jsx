@@ -27,6 +27,7 @@ const statusText = {
 const activityIcon = {
   TASK_COMPLETED: '✅',
   TASK_CREATED: '📝',
+  TASK_UPDATED: '🛠️',
   MEMBER_ADDED: '👤',
   PROJECT_CREATED: '📁',
 };
@@ -36,6 +37,7 @@ const emptyQuickForm = {
   title: '',
   description: '',
   priority: 'MEDIUM',
+  status: 'TODO',
   dueDate: '',
   assignedToId: '',
 };
@@ -251,6 +253,14 @@ const Dashboard = () => {
     loadDashboard();
   }, []);
 
+  const pushRecentActivity = (activity) => {
+    setDashboardData((current) => {
+      if (!current) return current;
+      const recent = current.recentActivity || [];
+      return { ...current, recentActivity: [activity, ...recent].slice(0, 8) };
+    });
+  };
+
   useEffect(() => {
     if (!toast) {
       return undefined;
@@ -325,6 +335,7 @@ const Dashboard = () => {
         title: quickForm.title.trim(),
         description: quickForm.description.trim() || null,
         priority: quickForm.priority,
+        status: quickForm.status,
         dueDate: quickForm.dueDate || null,
         assignedToId: quickForm.assignedToId || null,
       });
@@ -348,7 +359,7 @@ const Dashboard = () => {
         });
 
         const byStatus = current.byStatus.map((entry) =>
-          entry.status === 'TODO' ? { ...entry, count: entry.count + 1 } : entry
+          entry.status === createdTask.status ? { ...entry, count: entry.count + 1 } : entry
         );
 
         return {
@@ -365,8 +376,16 @@ const Dashboard = () => {
 
       setToast('Task created successfully');
       closeQuickAdd();
+      // push a client-side recent activity entry immediately
+      const projectTitle = projects.find((p) => String(p.id) === String(quickForm.projectId))?.title || '';
+      pushRecentActivity({
+        type: 'TASK_CREATED',
+        message: `${currentUser?.name ? 'You' : 'Someone'} created ${createdTask.title} in ${projectTitle}`,
+        projectName: projectTitle,
+        createdAt: new Date().toISOString(),
+      });
       // Force a fresh fetch after a small delay to ensure DB is updated
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
       await loadDashboard();
     } catch (requestError) {
       setQuickError(requestError.response?.data?.message || 'Failed to create task.');
@@ -435,8 +454,28 @@ const Dashboard = () => {
       });
 
       closeEditTask();
+      // push a client-side recent activity entry immediately
+      if (editTask) {
+        const wasCompleted = editTask.status === 'DONE';
+        const isCompletedNow = editForm.status === 'DONE';
+        if (!wasCompleted && isCompletedNow) {
+          pushRecentActivity({
+            type: 'TASK_COMPLETED',
+            message: `${currentUser?.name ? 'You' : 'Someone'} marked ${editForm.title} as Done`,
+            projectName: editTask.projectName || '',
+            createdAt: new Date().toISOString(),
+          });
+        } else {
+          pushRecentActivity({
+            type: 'TASK_UPDATED',
+            message: `${currentUser?.name ? 'You' : 'Someone'} updated ${editForm.title}`,
+            projectName: editTask.projectName || '',
+            createdAt: new Date().toISOString(),
+          });
+        }
+      }
       // Force a fresh fetch after a small delay to ensure DB is updated
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
       await loadDashboard();
     } catch (requestError) {
       setEditError(requestError.response?.data?.message || 'Failed to update task.');
@@ -448,13 +487,25 @@ const Dashboard = () => {
   const markMyTaskDone = async (task) => {
     // Toggle: if DONE, set to TODO; if not DONE, set to DONE
     const newStatus = task.status === 'DONE' ? 'TODO' : 'DONE';
+    await updateTaskStatus(task, newStatus);
+  };
 
+  const updateTaskStatus = async (task, newStatus) => {
     try {
-      await api.patch(`/api/projects/${task.projectId}/tasks/${task.id}`, {
-        status: newStatus,
+      await api.patch(`/api/projects/${task.projectId}/tasks/${task.id}`, { status: newStatus });
+      // push client-side activity immediately
+      const verb = newStatus === 'DONE' ? 'marked' : newStatus === 'IN_PROGRESS' ? 'moved' : 'set';
+      const type = newStatus === 'DONE' ? 'TASK_COMPLETED' : 'TASK_UPDATED';
+      pushRecentActivity({
+        type,
+        message: `${currentUser?.name ? 'You' : 'Someone'} ${verb} ${task.title} ${
+          newStatus === 'IN_PROGRESS' ? 'to In Progress' : newStatus === 'DONE' ? 'as Done' : ''
+        }`,
+        projectName: task.projectName || task.project?.title || '',
+        createdAt: new Date().toISOString(),
       });
-      // Force a fresh fetch after a small delay to ensure DB is updated
-      await new Promise(resolve => setTimeout(resolve, 500));
+
+      await new Promise((resolve) => setTimeout(resolve, 500));
       await loadDashboard();
     } catch (requestError) {
       setError(requestError.response?.data?.message || 'Failed to update task status.');
@@ -733,6 +784,16 @@ const Dashboard = () => {
                         <p className="text-xs text-slate-500">{task.projectName}</p>
                       </div>
                       <div className="flex items-center gap-2">
+                        <select
+                          value={task.status}
+                          onChange={(e) => updateTaskStatus(task, e.target.value)}
+                          className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-900"
+                        >
+                          <option value="TODO">To Do</option>
+                          <option value="IN_PROGRESS">In Progress</option>
+                          <option value="DONE">Done</option>
+                        </select>
+
                         <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${PRIORITY_BADGES[task.priority]}`}>
                           {task.priority}
                         </span>
@@ -872,6 +933,29 @@ const Dashboard = () => {
                       ))}
                     </select>
                   </div>
+                </div>
+
+                {/* Status */}
+                <div>
+                  <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+                    ✓ Status
+                  </label>
+                  <select
+                    name="status"
+                    value={quickForm.status}
+                    onChange={handleQuickChange}
+                    className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition appearance-none cursor-pointer hover:border-slate-300"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23475569' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'right 12px center',
+                      paddingRight: '36px',
+                    }}
+                  >
+                    <option value="TODO">📋 To Do</option>
+                    <option value="IN_PROGRESS">🔄 In Progress</option>
+                    <option value="DONE">✅ Done</option>
+                  </select>
                 </div>
 
                 {/* Error Message */}
