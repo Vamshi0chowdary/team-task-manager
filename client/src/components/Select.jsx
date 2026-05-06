@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+const normalizeOptionLabel = (label) => String(label || '').replace(/^[^\p{L}\p{N}]+/u, '').trim();
+
 const optionText = (option) => {
   if (typeof option?.props?.children === 'string') {
     return option.props.children;
@@ -9,7 +11,7 @@ const optionText = (option) => {
     return option.props.children.flat().map((item) => (typeof item === 'string' ? item : '')).join('');
   }
 
-  return String(option?.props?.children ?? option?.props?.value ?? '');
+  return normalizeOptionLabel(option?.props?.children ?? option?.props?.value ?? '');
 };
 
 const optionIcon = (label) => {
@@ -46,6 +48,9 @@ export default function Select({
             .map((child) => ({
               value: child.props.value,
               label: optionText(child),
+              name: child.props['data-name'],
+              role: child.props['data-role'],
+              email: child.props['data-email'],
             }))
         : [],
     [children]
