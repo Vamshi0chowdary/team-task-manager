@@ -25,6 +25,42 @@ const statusText = {
   DONE: 'Done',
 };
 
+  const renderAssigneeValue = (selected) => {
+    const isUnassigned = !selected?.label || selected.label === 'Unassigned';
+
+    return (
+      <span className="flex min-w-0 items-center gap-2 text-slate-900">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm leading-none text-blue-700">
+          👤
+        </span>
+        <span className="min-w-0 text-left">
+          <span className="block truncate font-semibold">{isUnassigned ? 'Unassigned' : selected.label}</span>
+          <span className="block text-xs font-normal text-slate-500">Choose a project member</span>
+        </span>
+      </span>
+    );
+  };
+
+  const renderAssigneeOption = (option, isSelected) => {
+    const isUnassigned = option.value === '';
+    const parts = String(option.label).split('(');
+    const name = parts[0]?.trim() || option.label;
+    const role = parts[1]?.replace(')', '').trim() || '';
+
+    return (
+      <span className="flex min-w-0 items-center gap-3">
+        <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${isUnassigned ? 'bg-slate-100 text-slate-500' : 'bg-blue-100 text-blue-700'}`}>
+          {isUnassigned ? '↔️' : '👤'}
+        </span>
+        <span className="min-w-0 text-left">
+          <span className="block truncate font-medium">{name}</span>
+          <span className="block text-xs text-slate-500">{isUnassigned ? 'Leave task unassigned' : role}</span>
+        </span>
+        {isSelected && !isUnassigned ? <span className="ml-auto text-blue-600">Selected</span> : null}
+      </span>
+    );
+  };
+
 const activityIcon = {
   TASK_COMPLETED: '✅',
   TASK_CREATED: '📝',
@@ -940,7 +976,13 @@ const Dashboard = () => {
                     <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
                       👤 Assign To
                     </label>
-                    <Select name="assignedToId" value={quickForm.assignedToId} onChange={handleQuickChange}>
+                    <Select
+                      name="assignedToId"
+                      value={quickForm.assignedToId}
+                      onChange={handleQuickChange}
+                      renderValue={renderAssigneeValue}
+                      renderOption={renderAssigneeOption}
+                    >
                       <option value="">Unassigned</option>
                       {quickMembers.map((member) => (
                         <option key={member.id} value={member.id}>
@@ -1063,6 +1105,8 @@ const Dashboard = () => {
                     <Select
                       value={editForm.assignedToId}
                       onChange={(event) => setEditForm((state) => ({ ...state, assignedToId: event.target.value }))}
+                      renderValue={renderAssigneeValue}
+                      renderOption={renderAssigneeOption}
                     >
                       <option value="">Unassigned</option>
                       {editMembers.map((member) => (

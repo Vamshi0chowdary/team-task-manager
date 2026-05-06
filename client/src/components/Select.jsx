@@ -23,7 +23,18 @@ const optionIcon = (label) => {
   return '•';
 };
 
-export default function Select({ className = '', style = {}, children, value, onChange, name, disabled = false, id }) {
+export default function Select({
+  className = '',
+  style = {},
+  children,
+  value,
+  onChange,
+  name,
+  disabled = false,
+  id,
+  renderValue,
+  renderOption,
+}) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef(null);
 
@@ -76,10 +87,14 @@ export default function Select({ className = '', style = {}, children, value, on
         className={`${baseClass} flex items-center justify-between gap-3 text-left disabled:cursor-not-allowed disabled:opacity-60 ${className}`}
         style={style}
       >
-        <span className="min-w-0 flex items-center gap-2 truncate">
-          <span className="text-base leading-none">{optionIcon(selected.label || '')}</span>
-          <span className="truncate">{selected.label || 'Select an option'}</span>
-        </span>
+        {renderValue ? (
+          renderValue(selected)
+        ) : (
+          <span className="min-w-0 flex items-center gap-2 truncate">
+            <span className="text-base leading-none">{optionIcon(selected.label || '')}</span>
+            <span className="truncate">{selected.label || 'Select an option'}</span>
+          </span>
+        )}
         <span className={`text-slate-500 transition ${open ? 'rotate-180' : ''}`}>▾</span>
       </button>
 
@@ -100,10 +115,14 @@ export default function Select({ className = '', style = {}, children, value, on
                     isSelected ? 'bg-blue-50 text-blue-700' : 'text-slate-700 hover:bg-slate-100'
                   }`}
                 >
-                  <span className="flex min-w-0 items-center gap-2 truncate">
-                    <span className="text-base leading-none">{optionIcon(option.label)}</span>
-                    <span className="truncate font-medium">{option.label}</span>
-                  </span>
+                  {renderOption ? (
+                    renderOption(option, isSelected)
+                  ) : (
+                    <span className="flex min-w-0 items-center gap-2 truncate">
+                      <span className="text-base leading-none">{optionIcon(option.label)}</span>
+                      <span className="truncate font-medium">{option.label}</span>
+                    </span>
+                  )}
                   {isSelected ? <span className="text-blue-600">✓</span> : null}
                 </button>
               );
