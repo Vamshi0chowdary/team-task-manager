@@ -9,14 +9,14 @@ const priorityRank = {
 };
 
 const buildTaskActivityItem = (task) => {
-  const isCompleted = task.status === 'DONE' && new Date(task.updatedAt).getTime() > new Date(task.createdAt).getTime();
+  const isCompleted = task.status === 'DONE';
 
   if (isCompleted) {
     return {
       type: 'TASK_COMPLETED',
       message: `${task.assignedTo?.name || task.createdBy?.name || 'A member'} marked ${task.title} as Done`,
       projectName: task.project.title,
-      createdAt: task.updatedAt,
+      createdAt: task.createdAt,
     };
   }
 
@@ -241,7 +241,6 @@ const getDashboard = async (req, res) => {
           title: true,
           status: true,
           createdAt: true,
-          updatedAt: true,
           project: {
             select: {
               title: true,
@@ -261,7 +260,7 @@ const getDashboard = async (req, res) => {
           },
         },
         orderBy: {
-          updatedAt: 'desc',
+          createdAt: 'desc',
         },
         take: 24,
       }),
@@ -422,7 +421,6 @@ const getDashboardActivity = async (req, res) => {
         title: true,
         status: true,
         createdAt: true,
-        updatedAt: true,
         project: {
           select: {
             title: true,
@@ -435,21 +433,21 @@ const getDashboardActivity = async (req, res) => {
         },
       },
       orderBy: {
-        updatedAt: 'desc',
+        createdAt: 'desc',
       },
       take: 8,
     });
 
     return res.status(200).json(
       activities.map((task) => {
-        const isCompleted = task.status === 'DONE' && new Date(task.updatedAt).getTime() > new Date(task.createdAt).getTime();
+        const isCompleted = task.status === 'DONE';
 
         if (isCompleted) {
           return {
             type: 'TASK_COMPLETED',
             message: `${task.createdBy?.name || 'A member'} marked ${task.title} as Done`,
             projectName: task.project.title,
-            createdAt: task.updatedAt,
+            createdAt: task.createdAt,
           };
         }
 
