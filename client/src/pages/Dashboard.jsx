@@ -241,7 +241,25 @@ const Dashboard = () => {
 
     try {
       const [dashboardResponse, projectsResponse] = await Promise.all([api.get('/api/dashboard'), api.get('/api/projects')]);
-      setDashboardData(dashboardResponse.data);
+      setDashboardData((current) => {
+        const currentActivity = current?.recentActivity || [];
+        const serverActivity = dashboardResponse.data?.recentActivity || [];
+        const activityByKey = new Map();
+
+        [...serverActivity, ...currentActivity].forEach((activity) => {
+          const key = [activity.type, activity.message, activity.projectName || '', activity.createdAt || ''].join('|');
+          if (!activityByKey.has(key)) {
+            activityByKey.set(key, activity);
+          }
+        });
+
+        return {
+          ...dashboardResponse.data,
+          recentActivity: Array.from(activityByKey.values())
+            .sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime())
+            .slice(0, 8),
+        };
+      });
       setProjects(projectsResponse.data);
     } catch (requestError) {
       setError(requestError.response?.data?.message || 'Failed to load dashboard.');
