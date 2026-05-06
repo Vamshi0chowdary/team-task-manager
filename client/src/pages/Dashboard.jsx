@@ -25,7 +25,20 @@ const statusText = {
   DONE: 'Done',
 };
 
-  const renderAssigneeValue = (selected) => {
+const sortMembersForAssign = (members) =>
+  [...members].sort((left, right) => {
+    if (left.role === right.role) {
+      return left.name.localeCompare(right.name);
+    }
+
+    if (left.role === 'ADMIN') return -1;
+    if (right.role === 'ADMIN') return 1;
+    return 0;
+  });
+
+  const createAssigneeValueRenderer = (members) => (selected) => {
+    const availableMembers = sortMembersForAssign(members || []);
+    const availableLabel = availableMembers.map((member) => `${member.name} (${member.role})`).join(', ');
     const isUnassigned = !selected?.label || selected.label === 'Unassigned';
 
     return (
@@ -35,7 +48,9 @@ const statusText = {
         </span>
         <span className="min-w-0 text-left">
           <span className="block truncate font-semibold">{isUnassigned ? 'Unassigned' : selected.label}</span>
-          <span className="block text-xs font-normal text-slate-500">Choose a project member</span>
+          <span className="block truncate text-xs font-normal text-slate-500">
+            {availableLabel ? `Available: ${availableLabel}` : 'No project members found'}
+          </span>
         </span>
       </span>
     );
@@ -333,7 +348,7 @@ const Dashboard = () => {
 
     try {
       const response = await api.get(`/api/projects/${projectId}/members`);
-      setter(response.data.members || []);
+      setter(sortMembersForAssign(response.data.members || []));
     } catch {
       setter([]);
     }
@@ -461,7 +476,7 @@ const Dashboard = () => {
 
       const latestTask = taskResponse.data;
       setEditTask({ ...latestTask, projectId: task.projectId, projectName: task.projectName });
-      setEditMembers(membersResponse.data.members || []);
+      setEditMembers(sortMembersForAssign(membersResponse.data.members || []));
       setEditForm({
         title: latestTask.title || '',
         description: latestTask.description || '',
@@ -980,7 +995,7 @@ const Dashboard = () => {
                       name="assignedToId"
                       value={quickForm.assignedToId}
                       onChange={handleQuickChange}
-                      renderValue={renderAssigneeValue}
+                      renderValue={createAssigneeValueRenderer(quickMembers)}
                       renderOption={renderAssigneeOption}
                     >
                       <option value="">Unassigned</option>
@@ -1105,7 +1120,7 @@ const Dashboard = () => {
                     <Select
                       value={editForm.assignedToId}
                       onChange={(event) => setEditForm((state) => ({ ...state, assignedToId: event.target.value }))}
-                      renderValue={renderAssigneeValue}
+                      renderValue={createAssigneeValueRenderer(editMembers)}
                       renderOption={renderAssigneeOption}
                     >
                       <option value="">Unassigned</option>
